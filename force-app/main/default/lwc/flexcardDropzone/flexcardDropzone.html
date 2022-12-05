@@ -1,0 +1,11 @@
+<template>
+    <div 
+        class={dropzoneClass} 
+        ondragenter={handleDropzoneDragOver} 
+        ondragover={handleDropzoneDragOver}
+        ondragleave={handleDropzoneDragLeave} 
+        ondrop={handleDropzoneDrop}>
+        <slot></slot>
+        <div class="dropzoneIndicator"></div>
+    </div>
+</template>

@@ -1,0 +1,32 @@
+:host {
+    --dropzone-background: #eef9f2;
+    --dropzone-border: #55bb81;
+    --dropzone-border-size: 1px;
+    --element-border-size: 2px;
+    --transparent: rgb(0, 0, 0, 0);
+}
+
+.dropzone {
+    position: relative;
+    height: 100%;
+    border: var(--dropzone-border-size) var(--transparent) solid;    
+}
+
+.dropzone.active {
+    border: var(--dropzone-border-size) var(--dropzone-border) solid;
+    background-color: var(--dropzone-background);
+    cursor: copy;
+}
+
+.dropzoneIndicator {
+    position: absolute;
+    border: none;
+    height: calc(var(--element-border-size) * 1.5);
+    background-color: var(--dropzone-border);
+    opacity: 0;
+    width: 100%;
+}
+
+.dropzoneIndicator.active {
+    opacity: 1;
+}
