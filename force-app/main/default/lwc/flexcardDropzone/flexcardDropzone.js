@@ -10,7 +10,7 @@ export default class FlexcardDropzone extends LightningElement {
     inNestedDropzone = false;   // Reserved for future use
 
     // Combines `dropzone` class with parent-supplied public class, if applicable
-    get dropzoneClassString() {
+    get dropzoneClass() {
         let classString = 'dropzone';
         if (this.publicClass) {
             classString = `${this.publicClass} ${classString}`;
@@ -33,13 +33,13 @@ export default class FlexcardDropzone extends LightningElement {
         return this.querySelectorAll(this.elementSelector);
     }
 
-    // Returns a simplified rectange object for each draggable element consisting of `top`, `middle`, and `bottom` properties
+    // Returns a simplified rectange object for each draggable element
     get elementRects() {
         return [...this.draggableElements].map(element => {
             return {
                 top: element.offsetTop,
                 middle: element.offsetTop + element.offsetHeight / 2,
-                bottom: element.offsetTop + element.offsetHeight
+                bottom: element.offsetTop + element.offsetHeight,
             }
         })
     }
@@ -74,11 +74,13 @@ export default class FlexcardDropzone extends LightningElement {
             };
             
             // If we have looped through all the elements and it is not in/above the top half of any of them, then the indicator goes after the last element
-            if (dropPos === undefined) {
+            if (indicatorY === undefined) {
                 indicatorY = this.elementRects[this.elementRects.length - 1].bottom;
+                indicatorOffset = 0;    // Because we're setting this relative to the bottom of the element rather than the top, we don't need an offset
             }
 
             // Position the indicator above or below the dragover element, and make it visible (`active`)
+            console.log(`${indicatorY + indicatorOffset}px`);
             this.dropzoneIndicator.style.top = `${indicatorY + indicatorOffset}px`;
             this.dropzoneIndicator.classList.add(ACTIVE);
         }
