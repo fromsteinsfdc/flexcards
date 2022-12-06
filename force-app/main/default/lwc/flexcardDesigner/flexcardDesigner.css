@@ -1,0 +1,141 @@
+:host {
+    --element-hover: #1b96ff;
+    --element-selected: #0176d3;
+    --dropzone-background: #eef9f2;
+    --dropzone-border: #55bb81;
+    --dropzone-border-size: 1px;
+    --element-border-size: 2px;
+}
+  
+.background-gray {
+    background-color: gray;
+}
+
+.circle-border {
+    border: 1px solid black;
+    border-radius: 50%;
+}
+
+/* dropzone bg: eef9f2 */
+/* dropzone border: 55bb81 */
+
+/* .slds-card__body:empty::before {
+    content: 'Drop Components Here';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-size: 150%;
+} */
+
+.slds-card {
+    border: 1px lightgray solid;
+    border-radius: 5px;
+}
+
+.slds-card__body {
+    /* background-color: gray; */
+    /* border: 1px black dashed; */
+    /* flex: 1; */
+    /* height: 100%; */
+    overflow-y: auto;
+}
+
+.cardBody {
+    display: block;
+    /* min-height: 6em !important; */
+    position: relative;
+}
+
+/* .cardHeader {
+    border-bottom: 5px lightgray solid !important;
+}
+
+.cardFooter {
+    border-top: 5px lightgray solid !important;
+} */
+
+.flexcardComponent:hover {
+    background-color: #f3f3f3;
+}
+
+.elementContainer {
+    position: relative;
+}
+
+.cardHeader, .cardFooter, .elementContainer, .cardBody {
+    border: var(--element-border-size) solid rgb(0, 0, 0, 0);
+}
+
+/* .slds-card__header:hover, .slds-card__footer:hover, .elementContainer:hover { */
+[data-is-hovered="true"] {
+    border: var(--element-border-size) solid var(--element-hover);
+}
+
+/* .elementContainer[data-is-selected="true"] { */
+[data-is-selected="true"] {
+    border: var(--element-border-size) solid var(--element-selected);
+}    
+
+/* ELEMENT BUTTONS CONTAINER */
+.elementButtonsContainer {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+}
+
+/* .elementContainer:not([data-is-selected="true"]):hover .elementButtonsContainer { */
+.elementContainer[data-is-hovered="true"] .elementButtonsContainer {
+    background-color: var(--element-hover);
+    opacity: 1;
+}
+
+.elementContainer[data-is-selected="true"] .elementButtonsContainer {
+    background-color: var(--element-selected);
+    opacity: 1;
+}
+
+.section {
+    border-collapse: separate;
+    /* border: 1px lightgray dashed; */
+    width: 100%;
+    table-layout: fixed;
+    /* margin: 1em 0; */
+}
+
+.sectionColumn {
+    border: 1px lightgray dashed;
+    position: relative;
+}
+
+.sectionColumn:empty::before {
+    content: 'Empty';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-style: italic;
+}
+
+.dropzoneIndicator {
+    position: absolute;
+    border: none;
+    height: calc(var(--element-border-size) * 1.5);
+    background-color: var(--dropzone-border);
+    opacity: 0;
+}
+
+.dropzoneIndicator.active {
+    opacity: 1;
+}
+
+.dropzoneActive {
+    border: var(--dropzone-border-size) var(--dropzone-border) solid;
+    background-color: var(--dropzone-background);
+    cursor: copy;
+}
+
