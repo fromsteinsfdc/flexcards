@@ -28,9 +28,13 @@ export default class FlexcardDropzone extends LightningElement {
         return this.template.querySelector('.dropzoneIndicator');
     }
 
-    // Returns draggable elements based on the element selector
+    // Returns draggable elements based on the element selector if provided, OR just grab the top-level children passed into the slot
     get draggableElements() {
-        return this.querySelectorAll(this.elementSelector);
+        if (this.elementSelector) {
+            return this.querySelectorAll(this.elementSelector);
+        } else {
+            return this.template.querySelector('slot').assignedElements();
+        }
     }
 
     // Returns a simplified rectange object for each draggable element
@@ -80,7 +84,6 @@ export default class FlexcardDropzone extends LightningElement {
             }
 
             // Position the indicator above or below the dragover element, and make it visible (`active`)
-            console.log(`${indicatorY + indicatorOffset}px`);
             this.dropzoneIndicator.style.top = `${indicatorY + indicatorOffset}px`;
             this.dropzoneIndicator.classList.add(ACTIVE);
         }
@@ -99,7 +102,7 @@ export default class FlexcardDropzone extends LightningElement {
     }
 
     // Clears dropzone when dragged element leaves dropzone area
-    handleDropzoneDragLeave() {
+    handleDropzoneDragLeave() {        
         this.clearDropzone();
     }
 
@@ -107,5 +110,6 @@ export default class FlexcardDropzone extends LightningElement {
     clearDropzone() {
         this.dropzone.classList.remove(ACTIVE);
         this.dropzoneIndicator.classList.remove(ACTIVE);
+        this.dispatchEvent(new CustomEvent('dropzoneclear'));        
     }
 }

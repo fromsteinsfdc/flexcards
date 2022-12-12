@@ -139,3 +139,12 @@
     cursor: copy;
 }
 
+.previewContainer {
+    position: relative;
+}
+
+.previewBuilderToggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+}

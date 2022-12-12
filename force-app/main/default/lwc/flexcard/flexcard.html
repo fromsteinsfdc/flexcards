@@ -1,0 +1,57 @@
+<template>
+    <article class="slds-card slds-grid slds-grid_vertical" style={computedFlexcardStyle}>
+        <template if:false={hideHeader}>
+            <div class="slds-card__header slds-grid cardHeader slds-p-bottom_small slds-m-around_none">
+                <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                    <template if:true={headerIcon}>
+                        <div class="slds-media__figure">
+                            <lightning-icon icon-name={headerIcon}></lightning-icon>
+                        </div>
+                    </template>
+                    <div class="slds-media__body">
+                        <h2 class="slds-card__header-title">
+                            <div class="slds-truncate">
+                                <span>
+                                    <template if:true={recordId}>
+                                        <template if:true={headerFieldName}>
+                                            <lightning-record-view-form object-api-name={objectApiName}
+                                                record-id={recordId}>
+                                                <lightning-output-field field-name={headerFieldName}
+                                                    variant="label-hidden"
+                                                    field-class="slds-text-heading_medium">
+                                                </lightning-output-field>
+                                            </lightning-record-view-form>
+                                        </template>
+                                    </template>
+                                </span>
+                            </div>
+                        </h2>
+                    </div>
+                </header>
+            </div>
+            <hr class="slds-m-vertical_none slds-p-vertical_none">
+        </template>
+        <div class="slds-card__body slds-grid slds-col">
+                <div class="slds-col slds-grid slds-wrap slds-grow slds-grid_vertical-align-center slds-grid_align-center slds-m-around_none cardBody">
+                <template for:each={flexcardElements} for:item="element" for:index="index">
+                    <div class="slds-col slds-size_1-of-1 elementContainer" key={element.id}>
+                        <c-flexcard-element element={element} record-id={recordId}
+                            object-api-name={objectApiName}>
+                        </c-flexcard-element>
+                    </div>
+                </template>
+            </div>
+        </div>
+        <template if:true={showFooter}>
+            <hr class="slds-m-vertical_none slds-p-vertical_none">
+            <footer class="slds-card__footer cardFooter slds-p-top_small slds-m-around_none"
+                onmouseenter={handleHeaderFooterMouseEnter} onmouseleave={handleHeaderFooterMouseLeave}
+                onclick={handleHeaderFooterClick} data-name="footer"
+                data-is-selected={selectedComponentIs.footer}>
+                <a class="slds-card__footer-action" href="#">View All
+                    <span class="slds-assistive-text">Accounts</span>
+                </a>
+            </footer>
+        </template>
+    </article>
+</template>

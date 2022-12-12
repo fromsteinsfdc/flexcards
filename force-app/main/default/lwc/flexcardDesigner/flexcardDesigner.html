@@ -18,192 +18,108 @@
         </div>
         <div class="slds-col slds-size_2-of-4 slds-p-around_small slds-border_left slds-border_right previewContainer"
             onclick={handlePreviewContainerClick}>
+            <!-- <lightning-button-group class="previewBuilderToggle slds-p-around_small">
+                <lightning-button-icon class="previewBuilderToggleButton" icon-name="utility:builder" size="small"
+                    variant="brand" alternative-text="Switch to builder mode" value="builder" onclick={handlePreviewBuilderToggleChange}>
+                </lightning-button-icon>
+                <lightning-button-icon class="previewBuilderToggleButton" icon-name="utility:preview" size="small"
+                    alternative-text="Switch to live preview mode" value="preview" onclick={handlePreviewBuilderToggleChange}></lightning-button-icon>
+            </lightning-button-group> -->
             <div class="slds-text-heading_small slds-align_absolute-center slds-p-bottom_small">Preview</div>
-            <article class="slds-card slds-grid slds-grid_vertical" style={computedFlexcardStyle}>
-                <template if:false={hideHeader}>
-                    <div class="slds-card__header slds-grid cardHeader slds-p-bottom_small slds-m-around_none"
-                        onmouseenter={handleHeaderFooterMouseEnter} onmouseleave={handleHeaderFooterMouseLeave}
-                        onclick={handleHeaderFooterClick} data-name="header"
-                        data-is-selected={selectedComponentIs.header}>
-                        <header class="slds-media slds-media_center slds-has-flexi-truncate">
-                            <template if:true={headerIcon}>
-                                <div class="slds-media__figure">
-                                    <lightning-icon icon-name={headerIcon}></lightning-icon>
+            <template if:true={isBuilderMode}>
+                <article class="slds-card slds-grid slds-grid_vertical" style={computedFlexcardStyle}>
+                    <template if:false={hideHeader}>
+                        <div class="slds-card__header slds-grid cardHeader slds-p-bottom_small slds-m-around_none"
+                            onmouseenter={handleHeaderFooterMouseEnter} onmouseleave={handleHeaderFooterMouseLeave}
+                            onclick={handleHeaderFooterClick} data-name="header"
+                            data-is-selected={selectedComponentIs.header}>
+                            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                                <template if:true={headerIcon}>
+                                    <div class="slds-media__figure">
+                                        <lightning-icon icon-name={headerIcon}></lightning-icon>
+                                    </div>
+                                </template>
+                                <div class="slds-media__body">
+                                    <h2 class="slds-card__header-title">
+                                        <div class="slds-truncate">
+                                            <span>
+                                                <template if:true={recordId}>
+                                                    <template if:true={headerFieldName}>
+                                                        <lightning-record-view-form object-api-name={objectApiName}
+                                                            record-id={recordId}>
+                                                            <lightning-output-field field-name={headerFieldName}
+                                                                variant="label-hidden"
+                                                                field-class="slds-text-heading_medium">
+                                                            </lightning-output-field>
+                                                        </lightning-record-view-form>
+                                                    </template>
+                                                    <template if:false={headerFieldName}>
+                                                        [Select Header Field]
+                                                    </template>
+                                                </template>
+                                                <template if:false={recordId}>
+                                                    [Select Preview Record]
+                                                </template>
+                                            </span>
+                                        </div>
+                                    </h2>
+                                </div>
+                            </header>
+                        </div>
+                        <hr class="slds-m-vertical_none slds-p-vertical_none">
+                    </template>
+                    <div class="slds-card__body slds-grid slds-col">
+                        <c-flexcard-dropzone ondragover={handleDropzoneDragOver} ondragenter={handleDropzoneDragEnter}
+                            class="slds-col slds-grid slds-wrap slds-grow slds-grid_vertical-align-center slds-grid_align-center slds-m-around_none cardBody dropzone"
+                            style={cardBodyStyle} public-class="slds-p-vertical_small"
+                            ondropzonedrop={handleDropzoneDrop}>
+                            <!-- element-selector=".elementContainer"> -->
+                            <template for:each={flexcardElements} for:item="element" for:index="index">
+                                <div class="slds-col slds-size_1-of-1 elementContainer" key={element.id}
+                                    data-index={index} data-id={element.id}
+                                    data-element-type={element.elementType.value}>
+                                    <!-- 
+                                draggable="true" ondragstart={handleFlexcardElementDragStart}
+                                data-is-hovered={element.isHovered}
+                                data-is-selected={element.isSelected}
+                                onclick={handleFlexcardElementClick}
+                                onmouseenter={handleFlexcardElementMouseEnter}
+                                onmouseleave={handleFlexcardElementMouseLeave} -->
+                                    <c-flexcard-element element={element} record-id={recordId}
+                                        selected-element-id={selectedElementId} hovered-element-id={hoveredElementId}
+                                        object-api-name={objectApiName} onsectioncolumndrop={handleSectionColumnDrop}
+                                        ondelete={handleElementDeleteClick} onhoverchange={handleElementHoverChange}
+                                        onselect={handleElementSelect} onelementdrag={handleElementDrag}
+                                        onclick={handleElementClick} is-edit-mode>
+                                    </c-flexcard-element>
                                 </div>
                             </template>
-                            <div class="slds-media__body">
-                                <h2 class="slds-card__header-title">
-                                    <div class="slds-truncate">
-                                        <span>
-                                            <template if:true={recordId}>
-                                                <template if:true={headerFieldName}>
-                                                    <lightning-record-view-form object-api-name={objectApiName}
-                                                        record-id={recordId}>
-                                                        <lightning-output-field field-name={headerFieldName}
-                                                            variant="label-hidden"
-                                                            field-class="slds-text-heading_medium">
-                                                        </lightning-output-field>
-                                                    </lightning-record-view-form>
-                                                </template>
-                                                <template if:false={headerFieldName}>
-                                                    [Select Header Field]
-                                                </template>
-                                            </template>
-                                            <template if:false={recordId}>
-                                                [Select Preview Record]
-                                            </template>
-                                        </span>
-                                    </div>
-                                </h2>
-                            </div>
-                        </header>
-                    </div>
-                    <hr class="slds-m-vertical_none slds-p-vertical_none">
-                </template>
-                <div class="slds-card__body slds-grid slds-col">
-                    <c-flexcard-dropzone
-                        class="slds-col slds-grid slds-wrap slds-grow slds-grid_vertical-align-center slds-grid_align-center slds-m-around_none cardBody dropzone"
-                        public-class="slds-p-vertical_small" ondropzonedrop={handleDropzoneDrop}
-                        element-selector=".elementContainer">
-                        <template for:each={flexcardElements} for:item="element" for:index="index">
-                            <div class="slds-col slds-p-around_xx-small slds-size_1-of-1 elementContainer"
-                                key={element.id} data-index={index} data-is-selected={element.isSelected}
-                                data-is-hovered={element.isHovered} data-element-type={element.elementType.value}
-                                draggable="true" onclick={handleFlexcardElementClick}
-                                onmouseenter={handleFlexcardElementMouseEnter}
-                                onmouseleave={handleFlexcardElementMouseLeave}
-                                ondragstart={handleFlexcardElementDragStart}>
-                                <c-flexcard-element element={element} record-id={recordId}
-                                    object-api-name={objectApiName} onsectioncolumndrop={handleSectionColumnDrop}
-                                    onelementdeleteclick={handleElementDeleteClick} is-edit-mode>
-                                </c-flexcard-element>
-                                <!-- <c-flexcard-element 
-                                    is-edit-mode=true
-                                    is-selected={element.isSelected}
-                                    is-hovered={element.isHovered}
-                                    element-type={element.elementType.value}
-                                    element-id={element.id}
-                                    element={element} 
-                                    object-api-name={objectApiName}
-                                    record-id={recordId}
-                                    field-name={element.fieldName}
-                                    show-custom-label={element.showCustomLabel}
-                                    custom-label={element.customLabel}
-                                    field-label-variant={element.fieldLabelVariant}  
-                                    section-columns={element.sectionColumns}                                  
-                                    onsectioncolumndrop={handleSectionColumnDrop}>
-                                </c-flexcard-element> -->
-                            </div>
-                        </template>
-                    </c-flexcard-dropzone>
-                    <div class="slds-hide slds-col slds-grid slds-wrap slds-grow slds-grid_vertical-align-center slds-grid_align-center slds-p-vertical_small slds-m-around_none cardBody dropzone"
-                        ondragenter={handleCardBodyDragEnter} ondragover={handleCardBodyDragEnter}
-                        ondragleave={handleCardBodyDragLeave} ondrop={handleCardBodyDrop}>
-                        <hr class="slds-m-vertical_none slds-p-vertical_none dropzoneIndicator">
-                        <template for:each={flexcardElements} for:item="element" for:index="index">
-                            <div class="slds-col slds-p-around_xx-small slds-size_1-of-1 elementContainer"
-                                key={element.id} data-index={index} data-is-selected={element.isSelected}
-                                data-is-hovered={element.isHovered} data-element-type={element.elementType.value}
-                                draggable="true" onclick={handleFlexcardElementClick}
-                                onmouseenter={handleFlexcardElementMouseEnter}
-                                onmouseleave={handleFlexcardElementMouseLeave}
-                                ondragstart={handleFlexcardElementDragStart} ondragover={handleFlexcardElementDragOver}
-                                ondragleave={handleFlexcardElementDragLeave}>
-                                <div class="slds-p-around_none slds-m-around_none elementButtonsContainer">
-                                    <button
-                                        class="slds-button slds-button_icon slds-button_icon-inverse slds-button__icon_xx-small"
-                                        title="Move" data-index={index} onclick={handleElementMoveClick}>
-                                        <lightning-icon icon-name="utility:move" variant="inverse" size="xx-small">
-                                        </lightning-icon>
-                                        <span class="slds-assistive-text">Move</span>
-                                    </button>
-                                    <button
-                                        class="slds-button slds-button_icon slds-button_icon-inverse slds-button__icon_xx-small"
-                                        title="Delete" data-index={index} onclick={handleElementDeleteClick}>
-                                        <lightning-icon icon-name="utility:delete" variant="inverse" size="xx-small">
-                                        </lightning-icon>
-                                        <span class="slds-assistive-text">Delete</span>
-                                    </button>
-                                </div>
-                                <!-- <template if:false={element.hideHeader}>
-                                    <div class="elementHeader">
-                                        <lightning-icon icon-name={element.elementType.icon} size="xx-small"
-                                            variant="inverse" class="slds-p-around_xx-small slds-theme_info">
-                                        </lightning-icon>
-                                        <span
-                                            class="slds-text-title_bold slds-p-horizontal_x-small">{element.elementType.label}</span>
-                                    </div>
-                                </template> -->
-                                <template if:true={element.isfield}>
-                                    <template if:true={recordId}>
-                                        <template if:true={element.fieldName}>
-                                            <lightning-record-view-form object-api-name={objectApiName}
-                                                record-id={recordId} onload={handleRecordViewFormLoad}>
-                                                <template if:true={element.showCustomLabel}>
-                                                    <label
-                                                        class="slds-form-element__label">{element.customLabel}</label>
-                                                </template>
-                                                <lightning-output-field field-name={element.fieldName}
-                                                    variant={element.fieldLabelVariant}></lightning-output-field>
-                                            </lightning-record-view-form>
-                                        </template>
-                                        <template if:false={element.fieldName}>
-                                            Select a field to display here
-                                        </template>
-                                    </template>
-                                    <template if:false={recordId}>
-                                        Select a record to preview
-                                    </template>
-                                </template>
-                                <template if:true={element.issection}>
-                                    <table class="section">
-                                        <tr class="slds-grid">
-                                            <template for:each={element.sectionColumns} for:item="column"
-                                                for:index="columnIndex">
-                                                <td key={column} class={column.columnClass} data-index={columnIndex}
-                                                    ondragenter={handleSectionColumnDragEnter}
-                                                    ondragover={handleSectionColumnEnter}
-                                                    ondragleave={handleSectionColumnDragLeave}
-                                                    ondrop={handleSectionColumnDrop}>
-                                                </td>
-                                            </template>
-                                        </tr>
-                                    </table>
-                                </template>
-                                <template if:true={element.isbutton}>
-                                    <lightning-button label={element.label} variant={element.variant}
-                                        stretch={element.stretch}>
-                                    </lightning-button>
-                                </template>
-                                <template if:true={element.isrichtext}>
-                                    <lightning-formatted-rich-text value={element.value}>
-                                    </lightning-formatted-rich-text>
-                                </template>
-                                <!-- <c-flexcard-element is-edit-mode={isEditMode} element={element} object-api-name={objectApiName} record-id={recordId}>
-                                </c-flexcard-element> -->
-                            </div>
-                        </template>
-                        <template if:false={flexcardElements.length}>
+                        </c-flexcard-dropzone>
+                        <!-- <template if:false={flexcardElements.length}>
                             <div class="slds-col slds-size_1-of-1">
                                 <div class="slds-text-heading_small slds-align_absolute-center">
                                     Drag Components Here
                                 </div>
                             </div>
-                        </template>
+                        </template> -->
                     </div>
-                </div>
-                <template if:true={showFooter}>
-                    <hr class="slds-m-vertical_none slds-p-vertical_none">
-                    <footer class="slds-card__footer cardFooter slds-p-top_small slds-m-around_none"
-                        onmouseenter={handleHeaderFooterMouseEnter} onmouseleave={handleHeaderFooterMouseLeave}
-                        onclick={handleHeaderFooterClick} data-name="footer"
-                        data-is-selected={selectedComponentIs.footer}>
-                        <a class="slds-card__footer-action" href="#">View All
-                            <span class="slds-assistive-text">Accounts</span>
-                        </a>
-                    </footer>
-                </template>
-            </article>
+                    <template if:true={showFooter}>
+                        <hr class="slds-m-vertical_none slds-p-vertical_none">
+                        <footer class="slds-card__footer cardFooter slds-p-top_small slds-m-around_none"
+                            onmouseenter={handleHeaderFooterMouseEnter} onmouseleave={handleHeaderFooterMouseLeave}
+                            onclick={handleHeaderFooterClick} data-name="footer"
+                            data-is-selected={selectedComponentIs.footer}>
+                            <a class="slds-card__footer-action" href="#">View All
+                                <span class="slds-assistive-text">Accounts</span>
+                            </a>
+                        </footer>
+                    </template>
+                </article>
+            </template>
+            <template if:false={isBuilderMode}>
+                <c-flexcard record-id={recordId} object-api-name={objectApiName} flexcard-elements={flexcardElements}>
+                </c-flexcard>
+            </template>
         </div>
         <div class="slds-col slds-size_1-of-4 slds-p-around_small configContainer">
             <template if:true={selectedComponentIs.flexcard}>
@@ -220,8 +136,10 @@
                 </c-fsc_lookup>
                 <c-slider-with-text label="Card Size (in pixels)" value={flexcardSize} min=100 max=500
                     onchange={handleFlexcardSizeChange}></c-slider-with-text>
-                <lightning-input label="Background Colour" type="color" value={flexcardColour}
-                    onchange={handleFlexcardColourChange}></lightning-input>
+                <c-flexcard-formatter show-color-picker properties={flexcardProperties}
+                    onchange={handleFlexcardFormatterChange}></c-flexcard-formatter>
+                <!-- <lightning-input label="Background Color" type="color" value={flexcardColor}
+                    onchange={handleFlexcardColorChange}></lightning-input> -->
             </template>
             <template if:true={selectedComponentIs.element}>
                 <template if:true={selectedElement.isfield}>
@@ -242,6 +160,8 @@
                         <lightning-input label="Custom Label" value={selectedElement.customLabel}
                             placeholder="My Custom Field Label" onchange={handleCustomLabelChange}></lightning-input>
                     </template>
+                    <c-flexcard-formatter properties={selectedElement.formatterProperties} show-text-sizes
+                        show-horizontal-align onchange={handleFieldFormatterChange}></c-flexcard-formatter>
                 </template>
                 <template if:true={selectedElement.isrichtext}>
                     <div class="slds-text-heading_small slds-align_absolute-center slds-p-bottom_small">Rich Text

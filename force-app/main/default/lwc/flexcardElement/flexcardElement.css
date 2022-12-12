@@ -1,0 +1,70 @@
+/* STYLING HOOKS */
+:host {
+    --element-hover: #1b96ff;
+    --element-selected: #0176d3;
+    --dropzone-background: #eef9f2;
+    --dropzone-border: #55bb81;
+    --dropzone-border-size: 1px;
+    --element-border-size: 2px;
+}
+
+/* ELEMENT CONTAINER */
+.elementContainer {
+    position: relative;
+    width: 100%;
+}
+
+.elementContainer[data-is-edit-mode=true] {
+    border: var(--element-border-size) solid rgb(0, 0, 0, 0);
+}
+
+.elementContainer.hovered {
+    border-color: var(--element-hover);
+}
+
+.elementContainer.selected {
+        border-color: var(--element-selected);
+}    
+
+/* ELEMENT BUTTONS CONTAINER */
+.elementButtonsContainer {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+}
+
+.hovered > .elementButtonsContainer {    
+    background-color: var(--element-hover);
+    opacity: 1;
+}
+
+.selected > .elementButtonsContainer {
+    background-color: var(--element-selected);
+    opacity: 1;
+} 
+
+/* SECTIONS */
+.section {
+    border-collapse: separate;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.sectionColumn {
+    border: 1px lightgray dashed;
+    min-height: 50px;
+    position: relative;
+}
+
+/* DROPZONE */
+c-flexcard-dropzone:empty::before {
+    content: 'Empty';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-style: italic;
+}

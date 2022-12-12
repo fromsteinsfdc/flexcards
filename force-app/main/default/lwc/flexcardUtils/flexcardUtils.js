@@ -24,6 +24,12 @@ const BUTTON_VARIANTS = {
     SUCCESS: { label: 'Success (green)', value: 'success' },
 };
 
+const LABEL_VARIANTS = {
+    STANDARD: { label: 'Use Standard Label', value: 'standard' },
+    CUSTOM: { label: 'Use Custom Label', value: 'custom' },
+    HIDDEN: { label: 'Hide Label', value: 'hidden' },
+};
+
 
 const transformConstantObject = (constant) => {
     return {
@@ -41,4 +47,4 @@ const transformConstantObject = (constant) => {
     }
 }
 
-export { FLEXCARD_ELEMENT_TYPES, BUTTON_VARIANTS, transformConstantObject }
+export { FLEXCARD_ELEMENT_TYPES, BUTTON_VARIANTS, LABEL_VARIANTS, transformConstantObject }

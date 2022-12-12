@@ -1,0 +1,116 @@
+<template>
+    <div class={computedElementClass} onmouseenter={handleElementMouseEnter} onmouseleave={handleElementMouseLeave}
+        onclick={handleElementClick} data-is-edit-mode={isEditMode} draggable={isEditMode}
+        ondragstart={handleElementDragStart} ondragend={handleElementDragEnd}>
+        <template if:true={isEditMode}>
+            <div class="elementButtonsContainer">
+                <button class="slds-button slds-button_icon slds-button_icon-inverse slds-button__icon_xx-small"
+                    title="Move" data-index={index} onclick={handleElementMoveClick}>
+                    <lightning-icon icon-name="utility:move" variant="inverse" size="xx-small">
+                    </lightning-icon>
+                    <span class="slds-assistive-text">Move</span>
+                </button>
+                <button class="slds-button slds-button_icon slds-button_icon-inverse slds-button__icon_xx-small"
+                    title="Delete" data-index={index} onclick={handleElementDeleteClick}>
+                    <lightning-icon icon-name="utility:delete" variant="inverse" size="xx-small">
+                    </lightning-icon>
+                    <span class="slds-assistive-text">Delete</span>
+                </button>
+            </div>
+        </template>
+        <template if:true={element}>
+            <!-- <template if:true={typeIs.field}>
+            <template if:true={recordId}>
+                <template if:true={fieldName}>
+                    <lightning-record-view-form object-api-name={objectApiName} record-id={recordId}
+                        onload={handleRecordViewFormLoad}>
+                        <template if:true={showCustomLabel}>
+                            <label class="slds-form-element__label">{customLabel}</label>
+                        </template>
+                        <lightning-output-field field-name={fieldName} variant={fieldLabelVariant}>
+                        </lightning-output-field>
+                    </lightning-record-view-form>
+                </template>
+                <template if:false={fieldName}>
+                    Select a field to display here
+                </template>
+            </template>
+            <template if:false={recordId}>
+                Select a record to preview
+            </template>
+        </template> -->
+            <template if:true={element.isfield}>
+                <!-- {elementString}             -->
+                <template if:true={recordId}>
+                    <template if:true={element.fieldName}>
+                        <lightning-record-view-form object-api-name={objectApiName} record-id={recordId}
+                            onload={handleRecordViewFormLoad}>
+                            <template if:true={element.showCustomLabel}>
+                                <label class="slds-form-element__label">{element.customLabel}</label>
+                            </template>
+                            <lightning-output-field field-name={element.fieldName} variant={element.fieldLabelVariant}
+                                field-class={element.fieldClass}>
+                            </lightning-output-field>
+                        </lightning-record-view-form>
+                    </template>
+                    <template if:false={element.fieldName}>
+                        Select a field to display here
+                    </template>
+                </template>
+                <template if:false={recordId}>
+                    Select a record to preview
+                </template>
+            </template>
+            <template if:true={element.issection}>
+                <!-- columns = {columnsString} -->
+                <table class="section">
+                    <tr class="slds-grid">
+                        <template for:each={element.sectionColumns} for:item="column" for:index="columnIndex">
+                            <td key={column} class={column.columnClass} data-index={columnIndex}>
+                                <template if:true={isEditMode}>
+                                    <c-flexcard-dropzone ondropzonedrop={handleSectionColumnDrop}
+                                        data-index={columnIndex}>
+                                        <template for:each={column.flexcardElements} for:item="columnElement">
+                                            <div class="slds-col slds-p-around_xx-small slds-size_1-of-1"
+                                                key={columnElement.id} data-column-index={columnIndex}
+                                                data-id={columnElement.id}
+                                                data-element-type={columnElement.elementType.value}>
+                                                <c-flexcard-element element={columnElement}
+                                                    object-api-name={objectApiName}
+                                                    selected-element-id={selectedElementId}
+                                                    hovered-element-id={hoveredElementId} record-id={recordId}
+                                                    onhoverchange={handleColumnElementHoverChange}
+                                                    onselect={handleColumnElementSelect}
+                                                    ondelete={handleColumnElementDelete}
+                                                    onelementdrag={handleColumnElementDrag} is-edit-mode={isEditMode}
+                                                    draggable={isEditMode}>
+                                                </c-flexcard-element>
+                                            </div>
+                                        </template>
+                                    </c-flexcard-dropzone>
+                                </template>
+                                <template if:false={isEditMode}>
+                                    <template for:each={column.flexcardElements} for:item="columnElement">
+                                        <div class="slds-col slds-p-around_xx-small slds-size_1-of-1"
+                                            key={columnElement.id}>
+                                            <c-flexcard-element element={columnElement} object-api-name={objectApiName}
+                                                record-id={recordId}>
+                                            </c-flexcard-element>
+                                        </div>
+                                    </template>
+                                </template>
+                            </td>
+                        </template>
+                    </tr>
+                </table>
+            </template>
+            <template if:true={element.isbutton}>
+                <lightning-button label={element.label} variant={element.variant} stretch={element.stretch}>
+                </lightning-button>
+            </template>
+            <template if:true={element.isrichtext}>
+                <lightning-formatted-rich-text value={element.value}></lightning-formatted-rich-text>
+            </template>
+        </template>
+    </div>
+</template>
