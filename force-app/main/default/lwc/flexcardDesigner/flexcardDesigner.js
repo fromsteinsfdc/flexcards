@@ -21,16 +21,16 @@ export default class FlexcardDesigner extends LightningElement {
         return this._flexcardElements;
     }
     set flexcardElements(value) {
-        this._flexcardElements = value;
+        this._flexcardElements = JSON.parse(JSON.stringify(value)) || [];;
     }
     @track _flexcardElements = [];
 
     @api
     get flexcardProperties() {
-        return this._flexcardProperties;
+        return this._flexcardProperties || {};
     }
     set flexcardProperties(value) {
-        this._flexcardProperties = value;
+        this._flexcardProperties = JSON.parse(JSON.stringify(value)) || {};
         this.cardBodyStyle = `background-color: ${this.flexcardProperties.color}`;
     }
     @track _flexcardProperties = {
@@ -38,7 +38,7 @@ export default class FlexcardDesigner extends LightningElement {
     };
 
     @api objectApiName = 'Account';
-    @track dragDetails = {};
+    @track dragDetails;
     @track sectionColumnDrop;
     @track elementIds = [];
     flexcardSize = 300;
@@ -169,12 +169,12 @@ export default class FlexcardDesigner extends LightningElement {
     }
 
     handlePreviewBuilderToggleChange(event) {
-        console.log(`in handlePreviewBuilderToggleChange, ${event.target.value}`);
+        // console.log(`in handlePreviewBuilderToggleChange, ${event.target.value}`);
         this.isBuilderMode = event.target.value != 'preview';
         for (let toggleButton of this.template.querySelectorAll('.previewBuilderToggleButton')) {
             toggleButton.variant = (toggleButton.value == event.target.value) ? 'brand' : '';
         }
-        console.log(this.isBuilderMode);
+        // console.log(this.isBuilderMode);
     }
 
     /* FLEXCARD PROPERTY EVENT HANDLERS */
@@ -206,7 +206,7 @@ export default class FlexcardDesigner extends LightningElement {
 
     /* HEADER PROPERTY EVENT HANDLERS */
     handleHeaderFieldNameChange(event) {
-        console.log(JSON.stringify(event.detail));
+        // console.log(JSON.stringify(event.detail));
         let fields = event.detail.value;
         this.headerFieldName = fields.length ? fields[0].name : null;
     }
@@ -273,35 +273,42 @@ export default class FlexcardDesigner extends LightningElement {
 
     handleDropzoneDrop(event) {
         console.log('in handleDropzoneDrop');
-        console.log(`dragDetails = ${JSON.stringify(this.dragDetails)}`);
+        if (!this.dragDetails) {
+            console.log('Error: no drag information found');
+        }
+        // console.log(`dragDetails = ${JSON.stringify(this.dragDetails)}`);
         let dropPos = event.detail.value;
         if (this.sectionColumnDrop) {
+            // console.log(`sectionColumnDrop = ${JSON.stringify(this.sectionColumnDrop)}`);
             dropPos = this.sectionColumnDrop.dropIndex;
         }
-        console.log(`dropPos = ${dropPos}`);
+        // console.log(`dropPos = ${dropPos}`);
         let draggedElement;
         // If dragType = new, add a new element to the canvas of the selected component type
         if (this.dragDetails.dragType === DRAG_TYPES.NEW) {
-            console.log('in new');
             let componentTypeName = this.dragDetails.componentType;
             let componentType = this.flexcardElementTypes.find(type => type.value == componentTypeName);
-            console.log(JSON.stringify(componentType));
             draggedElement = this.newFlexcardElement(componentType);
             if (this.sectionColumnDrop) {
                 let section = this.flexcardElements.find(el => el.id == this.sectionColumnDrop.sectionId);
                 let column = section.sectionColumns[this.sectionColumnDrop.columnIndex];
+                // console.log(`column = ${JSON.stringify(column)}`);
                 // column.flexcardElements.splice(dropPos, 0, draggedElement);
-                column.addElement(draggedElement, dropPos);
-                // this.sectionColumnDrop = null;
+                // console.log(`dropPos = ${dropPos}`);
+                // console.log(`draggedElement.id = ${draggedElement.id}`);
+                // column.addElement(draggedElement, dropPos);
+                draggedElement.sectionId = section.id;
+                draggedElement.columnIndex = column.index;
+                column.flexcardElements.splice(dropPos, 0, draggedElement);
             } else {
                 this.flexcardElements.splice(dropPos, 0, draggedElement);
             }
         }
         // If dragType = move, rearrange the existing elements on the canvas to reflect the new order        
         else if (this.dragDetails.dragType === DRAG_TYPES.MOVE) {
-            console.log(`looking for element list for ${this.dragDetails.elementId}`);
+            // console.log(`looking for element list for ${this.dragDetails.elementId}`);
             let dragOrigin = this.getElementList(this.dragDetails.elementId);
-            console.log(`dragOrigin = ${JSON.stringify(dragOrigin)}`);
+            // console.log(`dragOrigin = ${JSON.stringify(dragOrigin)}`);
             // Check to see if the drag begins and ends in the same list (either in the main flexcard body or in the same section column)
             let dropInOriginList = false;
             if (this.sectionColumnDrop) {
@@ -315,6 +322,7 @@ export default class FlexcardDesigner extends LightningElement {
                     dropInOriginList = true;
                 }
             }
+            console.log(`dropInOriginList = ${dropInOriginList}`);
 
             if (dropInOriginList) {
                 // if (Math.abs(dropPos - dragOrigin.indexInList) == 1) {
@@ -327,7 +335,7 @@ export default class FlexcardDesigner extends LightningElement {
             }
 
             draggedElement = dragOrigin.list.splice(dragOrigin.indexInList, 1);
-            console.log(`draggedElement = ${JSON.stringify(draggedElement)}`);            
+            // console.log(`draggedElement = ${JSON.stringify(draggedElement)}`);            
 
             // draggedElement = this.flexcardElements.splice(this.dragDetails.elementIndex, 1);
             if (draggedElement.length) {
@@ -337,7 +345,10 @@ export default class FlexcardDesigner extends LightningElement {
                     // console.log('correction! this element is actually being moved INTO section id ' + this.sectionColumnDrop.sectionId);
                     let section = this.flexcardElements.find(el => el.id == this.sectionColumnDrop.sectionId);
                     let column = section.sectionColumns[this.sectionColumnDrop.columnIndex];
-                    column.addElement(draggedElement, dropPos);
+                    // column.addElement(draggedElement, dropPos);
+                    draggedElement.sectionId = section.id;
+                    draggedElement.columnIndex = column.index;
+                    column.flexcardElements.splice(dropPos, 0, draggedElement);    
                 } else {
                     // Since the dragged element is being dropped in the main flexcard body and not a section column, clear any section/column identity
                     draggedElement.sectionId = null;
@@ -357,7 +368,9 @@ export default class FlexcardDesigner extends LightningElement {
         }
         // this.selectedElementIndex = dropPos;
         // console.log(`setting selectedElementId to ${draggedElement.id}`);
+        console.log('about to conclude handleDropzoneDrop');
         this.sectionColumnDrop = null;
+        this.hoveredElementId = null;
         this.selectedElementId = draggedElement.id;
         this.reorderElements();
         // console.log(JSON.stringify(this.flexcardElements));
@@ -367,9 +380,9 @@ export default class FlexcardDesigner extends LightningElement {
     /* COMPONENT MENU EVENT HANDLERS */
     handleComponentTypeDragStart(event) {
         let componentType = event.target.dataset.value;
-        console.log(`dragging ${componentType}`);
+        // console.log(`dragging ${componentType}`);
         event.dataTransfer.setData("text/plain", componentType);
-        console.log(`dataTransfer.getData = ${event.dataTransfer.getData("text/plain")}`);
+        // console.log(`dataTransfer.getData = ${event.dataTransfer.getData("text/plain")}`);
         this.dragDetails = {
             dragType: DRAG_TYPES.NEW,
             componentType: componentType
@@ -422,7 +435,7 @@ export default class FlexcardDesigner extends LightningElement {
     }
 
     async handleElementDeleteClick(event) {
-        console.log('in handleElementDeleteClick');
+        console.log('in handlfeElementDeleteClick');
         const result = await LightningConfirm.open({
             message: 'Are you sure you want to delete this component? You can\'t undo this action.',
             theme: 'error',
@@ -438,25 +451,6 @@ export default class FlexcardDesigner extends LightningElement {
     }
 
     /* SECTION COLUMN EVENT HANDLERS */
-    handleSectionColumnDragEnter(event) {
-        event.preventDefault();
-        console.log('in handleSectionColumnDragEnter');
-        this.dragIsOverSection = true;
-        console.log(event.currentTarget.dataset.index);
-        this.cardBody.classList.remove('dropzoneActive');
-        // TODO: Need to add check to make sure the element being dragged over is not another section
-        event.currentTarget.classList.add('dropzoneActive');
-        console.log('finished handleSectionColumnDragEnter');
-    }
-
-    handleSectionColumnDragLeave(event) {
-        this.dragIsOverSection = false;
-        console.log('in handleSectionColumnDragLeave');
-        console.log(event.currentTarget.dataset.index);
-        event.currentTarget.classList.remove('dropzoneActive');
-        console.log('finished handleSectionColumnDragLeave');
-    }
-
     handleSectionColumnDrop(event) {
         console.log('in handleSectionColumnDrop');
         console.log(JSON.stringify(event.detail));
@@ -479,11 +473,15 @@ export default class FlexcardDesigner extends LightningElement {
 
     handleElementDrag(event) {
         console.log(`in handleElementDrag, detail=${JSON.stringify(event.detail)}`);
-        // this.draggedElementId = event.detail.value;
-        this.dragDetails = {
-            dragType: DRAG_TYPES.MOVE,
-            elementId: event.detail.value,
-            sectionId: event.detail.sectionId
+        if (event.detail.value) {
+            // this.draggedElementId = event.detail.value;
+            this.dragDetails = {
+                dragType: DRAG_TYPES.MOVE,
+                elementId: event.detail.value,
+                sectionId: event.detail.sectionId
+            }
+        } else {
+            this.dragDetails = null;
         }
     }
 
@@ -514,6 +512,7 @@ export default class FlexcardDesigner extends LightningElement {
             newElement.label = 'Click Me';
             newElement.variant = 'neutral';
         }
+        console.log(`finishing newFlexcardElement: ${JSON.stringify(newElement)}`);
         return newElement;
     }
 
@@ -533,15 +532,23 @@ export default class FlexcardDesigner extends LightningElement {
             get widthLabel() {
                 return `Column ${+index + 1} Width`;
             },
+            /*
             addElement(element, indexInColumn = this.flexcardElements.length) {
+                console.log(`in addElement`);
                 element = {
                     ...element,
                     sectionId,
                     columnIndex: this.index
                 }
                 this.flexcardElements.splice(indexInColumn, 0, element);
+                console.log(`finished addElement`);
             }
+            */
         }
+    }
+
+    addElementToSectionColumn(element, sectionId, columnIndex) {
+
     }
 
     reorderElements() {
@@ -576,6 +583,7 @@ export default class FlexcardDesigner extends LightningElement {
     getElementList(id) {
         console.log(`in getElementList for id ${id}`);
         let el = this.getElementFromId(id);
+        console.log(`el = ${JSON.stringify(el)}`);
         if (!el) {
             return {
                 errorMessage: `Element with ID ${id} not found`
@@ -702,5 +710,26 @@ export default class FlexcardDesigner extends LightningElement {
     //     // this.hoveredElementIndex = null;
     //     this.hoveredElementId = null;
     // }
+    */  
+   
+    /*
+    handleSectionColumnDragEnter(event) {
+        event.preventDefault();
+        console.log('in handleSectionColumnDragEnter');
+        this.dragIsOverSection = true;
+        console.log(event.currentTarget.dataset.index);
+        this.cardBody.classList.remove('dropzoneActive');
+        // TODO: Need to add check to make sure the element being dragged over is not another section
+        event.currentTarget.classList.add('dropzoneActive');
+        console.log('finished handleSectionColumnDragEnter');
+    }
+
+    handleSectionColumnDragLeave(event) {
+        this.dragIsOverSection = false;
+        console.log('in handleSectionColumnDragLeave');
+        console.log(event.currentTarget.dataset.index);
+        event.currentTarget.classList.remove('dropzoneActive');
+        console.log('finished handleSectionColumnDragLeave');
+    }
     */    
 }

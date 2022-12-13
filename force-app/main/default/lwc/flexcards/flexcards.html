@@ -1,0 +1,24 @@
+<template>
+    <fieldset class="slds-form-element">
+        <!-- <legend class="slds-form-element__legend slds-form-element__label">Select a plan</legend> -->
+
+        <div class="slds-form-element__control">
+            <template for:each={records} for:item="record">
+                <div class="slds-visual-picker slds-visual-picker_medium" key={record.Id}>
+                    <label>
+                        <input type="radio" name={record.Id} />
+                        <span class="slds-visual-picker__figure slds-visual-picker__text slds-align_absolute-center">
+                            <c-flexcard record-id={record.Id} object-api-name={objectApiName}
+                                flexcard-elements={flexcardElements} flexcard-properties={flexcardProperties}>
+                            </c-flexcard>
+                        </span>
+                        <span class="slds-icon_container slds-visual-picker__text-check">
+                            <lightning-icon icon-name="utility:check" size="x-small" variant="inverse"></lightning-icon>
+                        </span>
+                    </label>
+                </div>
+            </template>
+        </div>
+    </fieldset>
+
+</template>

@@ -52,10 +52,8 @@ export default class FlexcardFormatter extends LightningElement {
     }
 
     updateAlignmentVariants() {
-        console.log(`in updateAlignmentVariants, ${JSON.stringify(this.selectedHorizontalAlign)}`);
         for (let alignment of this.horizontalAlignOptions) {
             alignment.variant = (this.selectedHorizontalAlign.value == alignment.value) ? 'brand' : 'border';
-            console.log(JSON.stringify(alignment));
         }
     }
 
