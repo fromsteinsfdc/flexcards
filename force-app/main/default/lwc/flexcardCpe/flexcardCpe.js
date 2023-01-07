@@ -1,5 +1,6 @@
 import { LightningElement, api, track } from 'lwc';
 import LightningConfirm from 'lightning/confirm';
+import { DEFAULT_FLEXCARD_PROPERTIES } from 'c/flexcardUtils';
 
 const DATA_TYPE = {
     STRING: 'String',
@@ -19,21 +20,21 @@ export default class FlexcardCpe extends LightningElement {
     showDesignerModal = false;
 
     /* CUSTOM PROPERTY EDITOR SETTINGS */
-    _builderContext;
+    // _builderContext;
     _values = [];
     _typeMappings = [];
 
     // @api genericTypeMappings = [];
-    @api
-    get builderContext() {
-        return this._builderContext;
-    }
-    set builderContext(value) {
-        this._builderContext = value;
-        // console.log(`builderContext:`);
-        // console.log(JSON.stringify(this.builderContext));
-    }
     @api automaticOutputVariables;
+    @api builderContext;
+
+    // @api
+    // get builderContext() {
+    //     return this._builderContext;
+    // }
+    // set builderContext(value) {
+    //     this._builderContext = value;
+    // }
 
     @api
     get inputVariables() {
@@ -62,8 +63,10 @@ export default class FlexcardCpe extends LightningElement {
 
     @track inputValues = {
         flexcardElements: { value: null, valueDataType: DATA_TYPE.STRING, label: 'Flexcard Elements', serialized: true },
-        flexcardProperties: { value: null, valueDataType: DATA_TYPE.STRING, label: 'Properties', serialized: true },
+        flexcardProperties: { value: DEFAULT_FLEXCARD_PROPERTIES, valueDataType: DATA_TYPE.STRING, label: 'Properties', serialized: true },
+        headerActionMenu: { value: null, valueDataType: DATA_TYPE.STRING, label: 'Header Action Menu', serialized: true },        
         objectApiName: { value: null, valueDataType: DATA_TYPE.STRING, label: 'Properties' },
+        previewRecordId: { value: null, valueDataType: DATA_TYPE.STRING, label: 'Preview Record ID' },
         records: { value: null, valueDataType: DATA_TYPE.STRING, label: 'Properties' },
     };
 
@@ -92,19 +95,24 @@ export default class FlexcardCpe extends LightningElement {
         });
     }
 
-    dispatchFlowValueChangeEvent(id, newValue, newValueDataType) {
-        console.log('in CPE dispatch to flow: ', id, newValue, newValueDataType);
+    dispatchFlowValueChangeEvent(name, newValue = null, newValueDataType = DATA_TYPE.STRING) {
+        console.log('in CPE dispatch to flow: ', name, newValue, newValueDataType);
         const valueChangedEvent = new CustomEvent(FLOW_EVENT_TYPE.CHANGE, {
             bubbles: true,
             cancelable: false,
             composed: true,
             detail: {
-                name: id,
-                newValue: newValue ? newValue : null,
-                newValueDataType: newValueDataType || DATA_TYPE.STRING
+                name,
+                newValue,
+                newValueDataType
             }
         });
         this.dispatchEvent(valueChangedEvent);
+    }
+
+    /* COMPONENT CODE */
+    get designer() {
+        return this.template.querySelector('c-flexcard-designer');
     }
 
     handleValueChange(event) {
@@ -155,7 +163,8 @@ export default class FlexcardCpe extends LightningElement {
 
                 if (objectName) {
                     console.log(`found object name: ${objectName}`);
-                    this.updateObjectApiName(objectName);
+                    this.updateGenericTypeMapping(objectName);
+                    this.dispatchFlowValueChangeEvent('objectApiName', objectName, 'String');
                 } else {
                     console.log('No matching object found, object name remains blank');
                 }
@@ -183,7 +192,7 @@ export default class FlexcardCpe extends LightningElement {
         return objectName;
     }
 
-    updateObjectApiName(objectApiName) {
+    updateGenericTypeMapping(objectApiName) {
         let typeValue = objectApiName;
         const typeName = 'T';
         const dynamicTypeMapping = new CustomEvent('configuration_editor_generic_type_mapping_changed', {
@@ -196,10 +205,6 @@ export default class FlexcardCpe extends LightningElement {
             }
         });
         this.dispatchEvent(dynamicTypeMapping);
-        if (this.inputValues.objectApiName.value != typeValue) {
-            this.inputValues.objectApiName.value = typeValue;
-            this.dispatchFlowValueChangeEvent(event.currentTarget.name, typeValue, 'String');
-        }
     }
 
     openDesignerModal() {
@@ -220,20 +225,24 @@ export default class FlexcardCpe extends LightningElement {
     }
 
     async handleCancelDesignerClick() {
-        const result = await LightningConfirm.open({
-            message: 'Are you sure you want to close without saving? Any changes will be lost.',
-            theme: 'error',
-            label: 'Close designer?',
-        });
-        if (result) {
-            this.closeDesignerModal();
+        if (this.designer.valuesHaveChanged) {
+            const result = await LightningConfirm.open({
+                message: 'Are you sure you want to close without saving? Any changes will be lost.',
+                theme: 'error',
+                label: 'Close designer?',
+            });
+            if (!result) {
+                return;
+            }
         }
+        this.closeDesignerModal();
     }
 
     handleSaveDesignerClick() {
         let designer = this.template.querySelector('c-flexcard-designer');
         let elements = designer.flexcardElements;
         let properties = designer.flexcardProperties;
+        this.dispatchFlowValueChangeEvent('previewRecordId', designer.previewRecordId);        
         this.dispatchFlowValueChangeEvent('flexcardElements', JSON.stringify(elements), 'String');
         this.dispatchFlowValueChangeEvent('flexcardProperties', JSON.stringify(properties), 'String');
         this.closeDesignerModal();

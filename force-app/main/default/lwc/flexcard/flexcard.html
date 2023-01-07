@@ -1,28 +1,33 @@
 <template>
     <article class="slds-card slds-grid slds-grid_vertical" style={computedFlexcardStyle}>
-        <template if:false={hideHeader}>
-            <div class="slds-card__header slds-grid cardHeader slds-p-bottom_small slds-m-around_none">
+        <template if:true={flexcardProperties.showHeader}>
+            <div class="slds-card__header slds-grid slds-wrap cardHeader slds-p-bottom_small slds-m-around_none">
                 <header class="slds-media slds-media_center slds-has-flexi-truncate">
                     <template if:true={headerIcon}>
                         <div class="slds-media__figure">
                             <lightning-icon icon-name={headerIcon}></lightning-icon>
                         </div>
                     </template>
-                    <div class="slds-media__body">
+                    <div class="slds-media__body slds-grid slds-wrap">
                         <h2 class="slds-card__header-title">
-                            <div class="slds-truncate">
+                            <div class="slds-truncate slds-col slds_size-1_of-1 slds-grid slds-wrap">
                                 <span>
-                                    <template if:true={recordId}>
+                                    <!-- <template if:true={recordId}>
                                         <template if:true={headerFieldName}>
                                             <lightning-record-view-form object-api-name={objectApiName}
                                                 record-id={recordId}>
-                                                <lightning-output-field field-name={headerFieldName}
-                                                    variant="label-hidden"
-                                                    field-class="slds-text-heading_medium">
+                                                <lightning-output-field field-name={flexcardProperties.headerFieldName}
+                                                    variant="label-hidden" field-class="slds-text-heading_medium">
                                                 </lightning-output-field>
                                             </lightning-record-view-form>
                                         </template>
-                                    </template>
+                                    </template> -->
+                                    <c-flexcard-display-field object-api-name={objectApiName} record-id={recordId}
+                                        field-name={flexcardProperties.headerFieldName}
+                                        field-label-variant="label-hidden" field-class="slds_size-1_of-1 slds-col slds-text-heading_medium slds-truncate slds-wrap"
+                                        message-if-field-name-missing="Header Field Missing">
+                                    </c-flexcard-display-field>
+
                                 </span>
                             </div>
                         </h2>
@@ -32,25 +37,19 @@
             <hr class="slds-m-vertical_none slds-p-vertical_none">
         </template>
         <div class="slds-card__body slds-grid slds-col">
-                <div class="slds-col slds-grid slds-wrap slds-grow slds-grid_vertical-align-center slds-grid_align-center slds-m-around_none cardBody">
+            <div
+                class="slds-col slds-grid slds-wrap slds-grow slds-grid_vertical-align-center slds-grid_align-center slds-m-around_none cardBody">
                 <template for:each={flexcardElements} for:item="element" for:index="index">
                     <div class="slds-col slds-size_1-of-1 elementContainer" key={element.id}>
-                        <c-flexcard-element element={element} record-id={recordId}
-                            object-api-name={objectApiName}>
+                        <c-flexcard-element element={element} record-id={recordId} object-api-name={objectApiName}>
                         </c-flexcard-element>
                     </div>
                 </template>
             </div>
         </div>
-        <template if:true={showFooter}>
+        <template if:true={flexcardProperties.showFooter}>
             <hr class="slds-m-vertical_none slds-p-vertical_none">
-            <footer class="slds-card__footer cardFooter slds-p-top_small slds-m-around_none"
-                onmouseenter={handleHeaderFooterMouseEnter} onmouseleave={handleHeaderFooterMouseLeave}
-                onclick={handleHeaderFooterClick} data-name="footer"
-                data-is-selected={selectedComponentIs.footer}>
-                <a class="slds-card__footer-action" href="#">View All
-                    <span class="slds-assistive-text">Accounts</span>
-                </a>
+            <footer class="slds-card__footer cardFooter slds-p-top_small slds-m-around_none">
             </footer>
         </template>
     </article>

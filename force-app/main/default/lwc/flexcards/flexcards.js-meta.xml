@@ -10,7 +10,9 @@
         <targetConfig targets="lightning__FlowScreen" configurationEditor="c-flexcard-cpe">
             <property name="flexcardElements" type="String" />
             <property name="flexcardProperties" type="String" />
+            <!-- <property name="headerActionMenu" type="String" /> -->
             <property name="objectApiName" type="String" />
+            <property name="previewRecordId" type="String" />
             <propertyType name="T" extends="SObject" label="Input Type" description="Generic sObject data type used for input sObject properties" />
             <property name="records" type="{T[]}" label="Records"/>
         </targetConfig>

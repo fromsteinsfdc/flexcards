@@ -2,6 +2,7 @@ import { LightningElement, api } from 'lwc';
 
 export default class Flexcard extends LightningElement {
     @api flexcardElements = [];
+    @api flexcardProperties = {};
     @api recordId;
     @api objectApiName;
 
@@ -16,6 +17,9 @@ export default class Flexcard extends LightningElement {
     }
 
     connectedCallback() {
-        console.log('in flexcard connectedCallback');
+        // console.log(`in flexcard connectedCallback for ${this.recordId}`);
+        // console.log(`flexcardElements: ${JSON.stringify(this.flexcardElements)}`);
+        console.log(`flexcardProperties: ${JSON.stringify(this.flexcardProperties)}`);
+
     }
 }

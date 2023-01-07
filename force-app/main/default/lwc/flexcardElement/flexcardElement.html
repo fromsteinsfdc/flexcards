@@ -1,11 +1,12 @@
 <template>
-    <div class={computedElementClass} onmouseenter={handleElementMouseEnter} onmouseleave={handleElementMouseLeave}
-        onclick={handleElementClick} data-is-edit-mode={isEditMode} draggable={isEditMode}
-        ondragstart={handleElementDragStart} ondragend={handleElementDragEnd}>
+    <!-- {computedElementClass} -->
+    <div class={computedElementClass} style={element.formatterStyleString} onmouseenter={handleElementMouseEnter}
+        onmouseleave={handleElementMouseLeave} onclick={handleElementClick} data-is-edit-mode={isEditMode}
+        draggable={isEditMode} ondragstart={handleElementDragStart} ondragend={handleElementDragEnd}>
         <template if:true={isEditMode}>
             <div class="elementButtonsContainer">
                 <button class="slds-button slds-button_icon slds-button_icon-inverse slds-button__icon_xx-small"
-                    title="Move" data-index={index} onclick={handleElementMoveClick}>
+                    title="Move" data-index={index}>
                     <lightning-icon icon-name="utility:move" variant="inverse" size="xx-small">
                     </lightning-icon>
                     <span class="slds-assistive-text">Move</span>
@@ -40,26 +41,12 @@
             </template>
         </template> -->
             <template if:true={element.isfield}>
-                <!-- {elementString}             -->
-                <template if:true={recordId}>
-                    <template if:true={element.fieldName}>
-                        <lightning-record-view-form object-api-name={objectApiName} record-id={recordId}
-                            onload={handleRecordViewFormLoad}>
-                            <template if:true={element.showCustomLabel}>
-                                <label class="slds-form-element__label">{element.customLabel}</label>
-                            </template>
-                            <lightning-output-field field-name={element.fieldName} variant={element.fieldLabelVariant}
-                                field-class={element.fieldClass}>
-                            </lightning-output-field>
-                        </lightning-record-view-form>
-                    </template>
-                    <template if:false={element.fieldName}>
-                        Select a field to display here
-                    </template>
-                </template>
-                <template if:false={recordId}>
-                    Select a record to preview
-                </template>
+                <c-flexcard-display-field object-api-name={objectApiName} record-id={recordId}
+                    field-name={element.fieldName} custom-label={element.customLabel}
+                    field-label-variant={element.fieldLabelVariant} field-class={element.fieldClass}
+                    message-if-field-name-missing="Select a field to display here"
+                    message-if-record-id-missing="Select a record to preview">
+                </c-flexcard-display-field>
             </template>
             <template if:true={element.issection}>
                 <!-- columns = {columnsString} -->
@@ -104,12 +91,40 @@
                     </tr>
                 </table>
             </template>
-            <template if:true={element.isbutton}>
+            <template if:true={element.ismenu}>
+                <template if:true={menuTypeIs.dropdown}>
+                    <lightning-button-menu menu-alignment="auto">
+                        <template for:each={element.actions} for:item="action">
+                            <lightning-menu-item key={action.index} label={action.label} value={action.value}>
+                            </lightning-menu-item>
+                        </template>
+                    </lightning-button-menu>
+                </template>
+                <template if:true={menuTypeIs.group}>
+                    <lightning-button-group>
+                        <template for:each={element.actions} for:item="action">
+                            <lightning-button key={action.index} label={action.label} value={action.value}>
+                            </lightning-button>
+                        </template>
+                    </lightning-button-group>
+                </template>
+                <template if:true={menuTypeIs.buttons}>
+                    <div class="slds-grid">
+                        <template for:each={element.actions} for:item="action">
+                            <div class={buttonSpacingClass} key={action.index}>
+                                <lightning-button key={action.index} label={action.label} value={action.value}>
+                                </lightning-button>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </template>
+            <template if:true={element.isaction}>
                 <lightning-button label={element.label} variant={element.variant} stretch={element.stretch}>
                 </lightning-button>
             </template>
             <template if:true={element.isrichtext}>
-                <lightning-formatted-rich-text value={element.value}></lightning-formatted-rich-text>
+                <lightning-formatted-rich-text value={richTextDisplayValue}></lightning-formatted-rich-text>
             </template>
         </template>
     </div>

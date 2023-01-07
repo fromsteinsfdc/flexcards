@@ -1,14 +1,16 @@
 <template>
-    <div class="slds-p-around_small">
-        <!-- <c-fsc_flow-combobox name="records" label="Record Collection to display" builder-context={builderContext}
-            value={inputValues.records.value} value-type={inputValues.records.valueType}
-            automatic-output-variables={automaticOutputVariables} builder-context-filter-collection-boolean
-            onvaluechanged={handleFlowComboboxValueChange}></c-fsc_flow-combobox> -->
-
-        <lightning-button label="Open Flexcard Designer" variant="brand" onclick={handleOpenDesignerClick}>
-        </lightning-button>
+    <div>
+        <div class="slds-p-vertical_xxx-small">
+            <c-fsc_flow-combobox name="records" label="Record Collection to display" builder-context={builderContext}
+                value={inputValues.records.value} value-type={inputValues.records.valueType}
+                automatic-output-variables={automaticOutputVariables} builder-context-filter-collection-boolean
+                onvaluechanged={handleFlowComboboxValueChange} required></c-fsc_flow-combobox>
+        </div>
+        <div class="slds-p-vertical_xxx-small">
+            <lightning-button label="Open Flexcard Designer" variant="brand" onclick={handleOpenDesignerClick}>
+            </lightning-button>
+        </div>
     </div>
-    <lightning-button label="Get designer content" onclick={handleGetTestContent}></lightning-button>
     <!-- <c-fsc_lwc-modal header="Flexcard Designer" size="large" confirm-button-label="Save" prevent-auto-close="true">
         <c-flexcard-designer></c-flexcard-designer>
     </c-fsc_lwc-modal> -->
@@ -17,17 +19,23 @@
         <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open slds-modal_large">
             <div class="slds-modal__container">
                 <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse">
-                    <lightning-button-icon icon-name="utility:close" variant="bare"></lightning-button-icon>
+                    <lightning-button-icon icon-name="utility:close" variant="bare" onclick={handleCancelDesignerClick}>
+                    </lightning-button-icon>
                 </button>
                 <div class="slds-modal__header">
                     <h1 class="slds-modal__title slds-hyphenate">Flexcard Designer</h1>
                 </div>
                 <div class="slds-modal__content slds-p-around_medium">
-                    <c-flexcard-designer flexcard-elements={inputValues.flexcardElements.value} flexcard-properties={inputValues.flexcardProperties.value}></c-flexcard-designer>
+                    <c-flexcard-designer object-api-name={inputValues.objectApiName.value}
+                        flexcard-elements={inputValues.flexcardElements.value}
+                        flexcard-properties={inputValues.flexcardProperties.value}
+                        preview-record-id={inputValues.previewRecordId.value}></c-flexcard-designer>
                 </div>
                 <div class="slds-modal__footer">
-                    <lightning-button label="Cancel" class="slds-p-horizontal_xxx-small" onclick={handleCancelDesignerClick}></lightning-button>
-                    <lightning-button label="Save" variant="brand" class="slds-p-horizontal_xxx-small" onclick={handleSaveDesignerClick}></lightning-button>
+                    <lightning-button label="Cancel" class="slds-p-horizontal_xxx-small"
+                        onclick={handleCancelDesignerClick}></lightning-button>
+                    <lightning-button label="Save" variant="brand" class="slds-p-horizontal_xxx-small"
+                        onclick={handleSaveDesignerClick}></lightning-button>
                 </div>
             </div>
         </section>

@@ -1,11 +1,17 @@
 <template>
-    {elementsString}
+    <!-- {selectedElementString}<br /> -->
+    <!-- {selectedActionMenuString}<br /> -->
+    <!-- {selectedElementEqualsSelectedActionMenu} -->
+    <template if:true={selectedAction}>
+        {selectedAction.menuId}
+    </template>
     <div class="slds-grid">
-        <div class="slds-col slds-size_1-of-4 slds-p-around_small componentsContainer">
+        <!-- COMPONENTS LIST -->
+        <div class="slds-col slds-size_1-of-4 slds-p-right_small componentsContainer">
             <div class="slds-text-heading_small slds-align_absolute-center slds-p-bottom_small">Flexcard Components
             </div>
             <div class="slds-grid slds-wrap">
-                <template for:each={flexcardElementTypes} for:item="componentType">
+                <template for:each={flexcardElementTypes.options} for:item="componentType">
                     <div class="slds-col slds-size_1-of-1 slds-p-around_x-small flexcardComponent"
                         key={componentType.value} data-value={componentType.value} draggable="true"
                         ondragstart={handleComponentTypeDragStart}>
@@ -16,7 +22,9 @@
                 </template>
             </div>
         </div>
-        <div class="slds-col slds-size_2-of-4 slds-p-around_small slds-border_left slds-border_right previewContainer"
+
+        <!-- PREVIEW CANVAS -->
+        <div class="slds-col slds-size_2-of-4 slds-border_left slds-border_right slds-p-horizontal_small previewContainer"
             onclick={handlePreviewContainerClick}>
             <!-- <lightning-button-group class="previewBuilderToggle slds-p-around_small">
                 <lightning-button-icon class="previewBuilderToggleButton" icon-name="utility:builder" size="small"
@@ -28,22 +36,36 @@
             <div class="slds-text-heading_small slds-align_absolute-center slds-p-bottom_small">Preview</div>
             <template if:true={isBuilderMode}>
                 <article class="slds-card slds-grid slds-grid_vertical" style={computedFlexcardStyle}>
-                    <template if:false={hideHeader}>
-                        <div class="slds-card__header slds-grid cardHeader slds-p-bottom_small slds-m-around_none"
+                    <template if:true={flexcardProperties.showHeader}>
+                        <div class="slds-card__header slds-grid slds-p-bottom_small slds-m-around_none cardHeader"
                             onmouseenter={handleHeaderFooterMouseEnter} onmouseleave={handleHeaderFooterMouseLeave}
-                            onclick={handleHeaderFooterClick} data-name="header"
-                            data-is-selected={selectedComponentIs.header}>
+                            onclick={handleHeaderFooterClick} data-name="header" data-is-selected={headerIsSelected}>
                             <header class="slds-media slds-media_center slds-has-flexi-truncate">
-                                <template if:true={headerIcon}>
+                                <template if:true={flexcardProperties.headerIcon}>
                                     <div class="slds-media__figure">
-                                        <lightning-icon icon-name={headerIcon}></lightning-icon>
+                                        <lightning-icon icon-name={flexcardProperties.headerIcon}></lightning-icon>
                                     </div>
                                 </template>
                                 <div class="slds-media__body">
+                                    <template if:true={flexcardProperties.showHeaderActions}>
+                                        <div class="headerActionMenu">
+                                            <c-flexcard-element element={flexcardProperties.headerActionMenu}
+                                                is-edit-mode>
+                                            </c-flexcard-element>
+                                        </div>
+                                    </template>
                                     <h2 class="slds-card__header-title">
                                         <div class="slds-truncate">
                                             <span>
-                                                <template if:true={recordId}>
+                                                <c-flexcard-display-field object-api-name={objectApiName}
+                                                    record-id={previewRecordId}
+                                                    field-name={flexcardProperties.headerFieldName}
+                                                    field-label-variant="label-hidden"
+                                                    field-class="slds-text-heading_medium"
+                                                    message-if-record-id-missing="[Select Preview Record]"
+                                                    message-if-field-name-missing="[Select Header Field]">
+                                                </c-flexcard-display-field>
+                                                <!-- <template if:true={recordId}>
                                                     <template if:true={headerFieldName}>
                                                         <lightning-record-view-form object-api-name={objectApiName}
                                                             record-id={recordId}>
@@ -59,7 +81,7 @@
                                                 </template>
                                                 <template if:false={recordId}>
                                                     [Select Preview Record]
-                                                </template>
+                                                </template> -->
                                             </span>
                                         </div>
                                     </h2>
@@ -78,14 +100,7 @@
                                 <div class="slds-col slds-size_1-of-1 elementContainer" key={element.id}
                                     data-index={index} data-id={element.id}
                                     data-element-type={element.elementType.value}>
-                                    <!-- 
-                                draggable="true" ondragstart={handleFlexcardElementDragStart}
-                                data-is-hovered={element.isHovered}
-                                data-is-selected={element.isSelected}
-                                onclick={handleFlexcardElementClick}
-                                onmouseenter={handleFlexcardElementMouseEnter}
-                                onmouseleave={handleFlexcardElementMouseLeave} -->
-                                    <c-flexcard-element element={element} record-id={recordId}
+                                    <c-flexcard-element element={element} record-id={previewRecordId}
                                         selected-element-id={selectedElementId} hovered-element-id={hoveredElementId}
                                         object-api-name={objectApiName} onsectioncolumndrop={handleSectionColumnDrop}
                                         ondelete={handleElementDeleteClick} onhoverchange={handleElementHoverChange}
@@ -103,7 +118,7 @@
                             </div>
                         </template> -->
                     </div>
-                    <template if:true={showFooter}>
+                    <template if:true={flexcardProperties.showFooter}>
                         <hr class="slds-m-vertical_none slds-p-vertical_none">
                         <footer class="slds-card__footer cardFooter slds-p-top_small slds-m-around_none"
                             onmouseenter={handleHeaderFooterMouseEnter} onmouseleave={handleHeaderFooterMouseLeave}
@@ -117,106 +132,235 @@
                 </article>
             </template>
             <template if:false={isBuilderMode}>
-                <c-flexcard record-id={recordId} object-api-name={objectApiName} flexcard-elements={flexcardElements}>
+                <c-flexcard record-id={previewRecordId} object-api-name={objectApiName}
+                    flexcard-elements={flexcardElements}>
                 </c-flexcard>
             </template>
         </div>
-        <div class="slds-col slds-size_1-of-4 slds-p-around_small configContainer">
+
+        <!-- CONFIG PANEL -->
+        <div class="slds-col slds-size_1-of-4 slds-grid configContainer">
             <template if:true={selectedComponentIs.flexcard}>
-                <div class="slds-text-heading_small slds-align_absolute-center slds-p-bottom_small">Flexcard Properties
-                </div>
-                <lightning-input label="Show Header" type="checkbox" onchange={handleShowHeaderChange} checked>
-                </lightning-input>
-                <lightning-input label="Show Footer" type="checkbox" onchange={handleShowFooterChange}>
-                </lightning-input>
-                <!-- <lightning-input label="Enter record ID to preview" onchange={handleRecordIdChange} value={recordId}>
-                </lightning-input> -->
-                <c-fsc_lookup object-name={objectApiName} label="Select Record to Preview" icon-name="standard:account"
-                    fields-to-display="Name,Phone" value={recordId} onrecordchange={handlePreviewRecordChange}>
-                </c-fsc_lookup>
-                <c-slider-with-text label="Card Size (in pixels)" value={flexcardSize} min=100 max=500
-                    onchange={handleFlexcardSizeChange}></c-slider-with-text>
-                <c-flexcard-formatter show-color-picker properties={flexcardProperties}
-                    onchange={handleFlexcardFormatterChange}></c-flexcard-formatter>
-                <!-- <lightning-input label="Background Color" type="color" value={flexcardColor}
-                    onchange={handleFlexcardColorChange}></lightning-input> -->
-            </template>
-            <template if:true={selectedComponentIs.element}>
-                <template if:true={selectedElement.isfield}>
-                    <div class="slds-text-heading_small slds-align_absolute-center slds-p-bottom_small">Field Properties
+                <div class="slds-col slds-size_1-of-1 slds-p-left_small configSubpanel">
+                    <div class="slds-text-heading_small slds-align_absolute-center slds-p-bottom_small">Flexcard
+                        Properties
                     </div>
-                    <!-- Field name: {selectedElement.fieldName} -->
-                    <!-- <c-fsc_field-selector3 object-name={objectApiName} label="Select Field"
-                        preselected-values-string={selectedElement.fieldName} onfieldupdate={handleFieldNameUpdate}>
-                    </c-fsc_field-selector3> -->
+                    <lightning-input label="Show Header" name="showHeader" checked={flexcardProperties.showHeader}
+                        type="checkbox" onchange={handleFlexcardPropertyChange}>
+                    </lightning-input>
+                    <!-- <lightning-input label="Show Footer" name="showFooter" checked={flexcardProperties.showFooter}
+                        type="checkbox" onchange={handleFlexcardPropertyChange}></lightning-input>-->
+                    <c-fsc_lookup object-name={objectApiName} label="Select Record to Preview" value={previewRecordId}
+                        onrecordchange={handlePreviewRecordChange}>
+                    </c-fsc_lookup>
+                    <c-slider-with-text label="Card Size (in pixels)" name="flexcardSize"
+                        value={flexcardProperties.flexcardSize} min=100 max=500 onchange={handleFlexcardPropertyChange}>
+                    </c-slider-with-text>
+                    <c-flexcard-formatter show-color-picker properties={flexcardProperties}
+                        onchange={handleFlexcardFormatterChange}></c-flexcard-formatter>
+                    <!-- <lightning-input label="Background Color" type="color" value={flexcardColor}
+                    onchange={handleFlexcardColorChange}></lightning-input> -->
+                </div>
+            </template>
+            <template if:true={selectedComponentIs.header}>
+                <div class="slds-col slds-size_1-of-1 slds-p-left_small headerConfig configSubpanel">
+                    <div class="slds-text-heading_small slds-align_absolute-center slds-p-bottom_small">Header
+                        Properties
+                    </div>
+                    <c-fsc_pick-icon label="Select Icon" icon-name={flexcardProperties.headerIcon}
+                        oniconselection={handleHeaderIconChange} mode="combobox"></c-fsc_pick-icon>
+                    <c-fsc_field-selector3 object-name={objectApiName} label="Select Field for Header"
+                        preselected-values-string={flexcardProperties.headerFieldName}
+                        onfieldupdate={handleHeaderFieldNameChange}>
+                    </c-fsc_field-selector3>
+                    <lightning-input name="showHeaderActions" label="Show Header Actions" type="checkbox"
+                        checked={flexcardProperties.showHeaderActions} onchange={handleShowHeaderActionsChange}>
+                    </lightning-input>
+                    <template if:true={flexcardProperties.showHeaderActions}>
+                        <div class="slds-p-vertical_xx-small">
+                            <lightning-button label="Manage Actions" variant="brand-outline"
+                                onclick={handleManageHeaderActionsClick}>
+                            </lightning-button>
+                        </div>
+                    </template>
+                    <!-- <lightning-combobox label="Header Action" value={headerActionType} options={headerActionOptions}
+                        onchange={handleHeaderActionTypeChange}></lightning-combobox> -->
+                </div>
+            </template>
+            <template if:true={selectedComponentIs.footer}>
+                <div class="slds-col slds-size_1-of-1 slds-p-left_small configSubpanel">
+                    <div class="slds-text-heading_small slds-align_absolute-center slds-p-bottom_small">Footer
+                        Properties
+                    </div>
+                </div>
+            </template>
+            <template if:true={selectedElement.isfield}>
+                <div class="slds-col slds-size_1-of-1 slds-p-left_small configSubpanel">
+                    <div class="slds-text-heading_small slds-align_absolute-center slds-p-bottom_small">Field
+                        Properties
+                    </div>
                     <c-fsc_field-selector2 object-name={objectApiName} label="Select Field"
-                        value={selectedElement.fieldName} onchange={handleFieldNameUpdate}>
+                        value={selectedElement.fieldName} onchange={handleFieldNameUpdate} required>
                     </c-fsc_field-selector2>
 
-                    <lightning-combobox label="Display Field Label" options={fieldLabelOptions}
+                    <lightning-combobox label="Display Field Label" options={fieldLabels.options}
                         value={selectedElement.fieldLabelStyle} onchange={handleFieldLabelStyleChange}>
                     </lightning-combobox>
                     <template if:true={selectedElement.showCustomLabel}>
                         <lightning-input label="Custom Label" value={selectedElement.customLabel}
-                            placeholder="My Custom Field Label" onchange={handleCustomLabelChange}></lightning-input>
+                            placeholder="My Custom Field Label" onchange={handleCustomLabelChange}>
+                        </lightning-input>
                     </template>
-                    <c-flexcard-formatter properties={selectedElement.formatterProperties} show-text-sizes
-                        show-horizontal-align onchange={handleFieldFormatterChange}></c-flexcard-formatter>
-                </template>
-                <template if:true={selectedElement.isrichtext}>
-                    <div class="slds-text-heading_small slds-align_absolute-center slds-p-bottom_small">Rich Text
+                    <c-flexcard-formatter name="fieldFormatter" properties={selectedElement.formatterProperties}
+                        show-text-sizes show-horizontal-align onchange={handleElementFormatterChange} show-size-picker
+                        size-picker-label="Padding Size" size-property-name="slds-p-horizontal">
+                    </c-flexcard-formatter>
+                </div>
+            </template>
+            <template if:true={selectedElement.isrichtext}>
+                <div class="slds-col slds-size_1-of-1 slds-p-left_small configSubpanel">
+
+                    <div class="slds-text-heading_small slds-align_absolute-center slds-p-bottom_small">Rich
+                        Text
                     </div>
                     <lightning-input-rich-text label="Display Text" label-visible value={selectedElement.value}
                         onchange={handleRichTextChange}></lightning-input-rich-text>
-                </template>
-                <template if:true={selectedElement.issection}>
+                </div>
+            </template>
+            <template if:true={selectedElement.issection}>
+                <div class="slds-col slds-size_1-of-1 slds-p-left_small configSubpanel">
                     <div class="slds-text-heading_small slds-align_absolute-center slds-p-bottom_small">Section
                     </div>
                     <template for:each={selectedElement.sectionColumns} for:item="column" for:index="index">
                         <div class="slds-grid slds-grid_vertical-align-end" key={column.index}>
-                            <div class="slds-col slds">
-                                <lightning-combobox label={column.widthLabel} value={column.width}
-                                    options={columnWidthOptions}></lightning-combobox>
+                            <div class="slds-col">
+                                <lightning-combobox label={column.widthLabel} value={column.width} data-index={index}
+                                    options={columnWidthOptions} onchange={handleColumnWidthChange}>
+                                </lightning-combobox>
                             </div>
                             <div class="slds-p-left_small">
-                                <lightning-button-icon icon-name="utility:delete"></lightning-button-icon>
+                                <!-- <lightning-button-menu icon-name="utility:top_align">
+                                    <lightning-menu-item icon-name="utility:top_align"></lightning-menu-item>
+                                    <lightning-menu-item icon-name="utility:center_align"></lightning-menu-item>
+                                    <lightning-menu-item icon-name="utility:bottom_align"></lightning-menu-item>
+                                </lightning-button-menu> -->
+                                <lightning-button-icon icon-name="utility:delete" data-index={index}
+                                    onclick={handleColumnDeleteClick}></lightning-button-icon>
                             </div>
                         </div>
                     </template>
                     <div class="slds-p-vertical_x-small">
-                        <lightning-button label="Add Column" icon-name="utility:add" variant="brand-outline">
+                        <lightning-button label="Add Column" icon-name="utility:add" variant="brand-outline"
+                            onclick={handleAddColumnClick} disabled={addColumnButtonDisabled}>
                         </lightning-button>
                     </div>
-                </template>
-                <template if:true={selectedElement.isbutton}>
+                </div>
+            </template>
+            <template if:true={selectedActionMenu}>
+                <div class="slds-col slds-size_1-of-1 slds-p-left_small actionMenuConfig configSubpanel">
+                    <!-- <div class={actionMenuClass}> -->
+                    <!-- <template if:true={selectedElement.ismenu}> -->
+                    <div class="slds-text-heading_small slds-align_absolute-center slds-p-bottom_small">Action
+                        Menu
+                        Properties
+                    </div>
+                    <lightning-combobox label="Action Menu Display Type" options={menuDisplayTypes.options}
+                        value={selectedActionMenu.menuDisplayType} onchange={handleMenuDisplayTypeChange}>
+                    </lightning-combobox>
+                    <div class="actionsConfigContainer slds-grid slds-wrap">
+                        <c-flexcard-dropzone ondropzonedrop={handleMenuActionDrop} data-menu-id={selectedActionMenu.id}>
+                            <template for:each={selectedActionMenu.actions} for:item="action" for:index="index">
+                                <div class="slds-col slds-size_1-of-1 slds-grid_vertical-align-end slds-is-relative slds-grid"
+                                    key={action.index} data-index={index} draggable="true"
+                                    ondragstart={handleMenuActionDragStart}>
+                                    <!-- <div class="slds-col flowPickerContainer">
+                                            <div class="flowPickerContainer"> -->
+                                    <div class="slds-col">
+                                        <table style="table-layout:fixed">
+                                            <tr>
+                                                <td>
+                                                    <c-fsc_flow-picker label="Select Flow"
+                                                        selected-flow-api-name={action.flowName}
+                                                        onflowselect={handleFlowSelect} data-id={action.id}
+                                                        data-index={index} show-active-flows-only required>
+                                                    </c-fsc_flow-picker>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="slds-grid slds-wrap slds-p-left_xxx-small"
+                                        onclick={handleMenuActionClick} data-menu-id={selectedActionMenu.id}
+                                        data-id={action.id} data-index={index}>
+                                        <lightning-button-icon icon-name="utility:edit" alternative-text="Edit action"
+                                            size="small" class="slds-col slds-size_1-of-1" variant="bare"
+                                            data-action-name="edit">
+                                        </lightning-button-icon>
+                                        <lightning-button-icon icon-name="utility:delete"
+                                            alternative-text="Delete action" size="small"
+                                            class="slds-col slds-size_1-of-1" variant="bare" data-action-name="delete">
+                                        </lightning-button-icon>
+                                    </div>
+                                </div>
+                            </template>
+                        </c-flexcard-dropzone>
+                    </div>
+                    <div class="slds-p-vertical_x-small">
+                        <lightning-button label="Add Action" icon-name="utility:add" variant="brand-outline"
+                            onclick={handleAddActionClick}>
+                        </lightning-button>
+                    </div>
+                    <c-flexcard-formatter name="menuFormatter" properties={selectedActionMenu.formatterProperties}
+                        show-horizontal-align={selectedElement.id} onchange={handleElementFormatterChange}>
+                    </c-flexcard-formatter>
+                </div>
+            </template>
+            <template if:true={selectedAction}>
+                <div class="slds-col slds-size_1-of-1 slds-p-left_small configSubpanel">
                     <div class="slds-text-heading_small slds-align_absolute-center slds-p-bottom_small">Action
                         Properties </div>
-                    <lightning-input label="Action Label" value={selectedElement.label}
-                        onchange={handleButtonLabelChange}></lightning-input>
-                    <lightning-combobox label="Display Variant" options={buttonVariantOptions}
-                        value={selectedElement.variant} onchange={handleButtonVariantChange}></lightning-combobox>
-                    <lightning-input label="Stretch to Fill Width" type="checkbox" checked={selectedElement.stretch}
-                        onchange={handleButtonStretchChange}>
-                    </lightning-input>
-                    <c-fsc_flow-picker3 label="Select Flow" show-active-flows-only>
+                    <c-fsc_flow-picker3 label="Select Flow" selected-flow-api-name={selectedAction.flowName}
+                        onflowselect={handleFlowSelect} show-active-flows-only required>
                     </c-fsc_flow-picker3>
-                </template>
-            </template>
-            <template if:true={selectedComponentIs.header}>
-                <div class="slds-text-heading_small slds-align_absolute-center slds-p-bottom_small">Header Properties
-                </div>
-                <c-fsc_pick-icon label="Select Icon" icon-name={headerIcon} oniconselection={handleHeaderIconChange}
-                    mode="combobox"></c-fsc_pick-icon>
-                <c-fsc_field-selector3 object-name={objectApiName} label="Select Field for Header"
-                    preselected-values-string={headerFieldName} onfieldupdate={handleHeaderFieldNameChange}>
-                </c-fsc_field-selector3>
-                <lightning-combobox label="Header Action" value={headerActionType} options={headerActionOptions}
-                    onchange={handleHeaderActionTypeChange}></lightning-combobox>
-            </template>
-            <template if:true={selectedComponentIs.footer}>
-                <div class="slds-text-heading_small slds-align_absolute-center slds-p-bottom_small">Footer Properties
+                    <lightning-input label="Action Label" value={selectedAction.label} placeholder="Enter Flow Label"
+                        onchange={handleButtonLabelChange}></lightning-input>
+                    <c-fsc_pick-icon label="Select Icon" icon-name={selectedAction.iconName}
+                        oniconselection={handleActionIconChange} mode="combobox"></c-fsc_pick-icon>
+
+                    <template if:false={selectedAction.menuId}>
+                        <lightning-combobox label="Display Variant" options={buttonVariants.options}
+                            value={selectedAction.variant} onchange={handleButtonVariantChange}>
+                        </lightning-combobox>
+                        <lightning-input label="Stretch to Fill Width" type="checkbox" checked={selectedAction.stretch}
+                            onchange={handleButtonStretchChange}>
+                        </lightning-input>
+                        <c-flexcard-formatter name="buttonFormatter" properties={selectedAction.formatterProperties}
+                            show-horizontal-align onchange={handleElementFormatterChange}></c-flexcard-formatter>
+                    </template>
                 </div>
             </template>
         </div>
     </div>
+
+    <template if:true={showDesignerModal}>
+        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open slds-modal_large">
+            <div class="slds-modal__container">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse">
+                    <lightning-button-icon icon-name="utility:close" variant="bare" onclick={handleCancelDesignerClick}>
+                    </lightning-button-icon>
+                </button>
+                <div class="slds-modal__header">
+                    <h1 class="slds-modal__title slds-hyphenate">Flexcard Designer</h1>
+                </div>
+                <div class="slds-modal__content slds-p-around_medium">
+                    Hi, thanks for coming </div>
+                <div class="slds-modal__footer">
+                    <lightning-button label="Cancel" class="slds-p-horizontal_xxx-small"
+                        onclick={handleCancelDesignerClick}></lightning-button>
+                    <lightning-button label="Save" variant="brand" class="slds-p-horizontal_xxx-small"
+                        onclick={handleSaveDesignerClick}></lightning-button>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+    </template>
 </template>

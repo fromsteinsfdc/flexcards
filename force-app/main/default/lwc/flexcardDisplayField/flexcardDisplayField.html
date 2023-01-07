@@ -1,0 +1,24 @@
+<template>
+    <template if:true={recordId}>
+        <template if:true={fieldName}>
+            <template if:false={fieldLoaded}>
+                <lightning-spinner size="small"></lightning-spinner>
+            </template>
+            <lightning-record-view-form object-api-name={objectApiName} record-id={recordId}
+                onload={handleRecordViewFormLoad}>
+                <template if:true={customLabel}>
+                    <label class="slds-form-element__label">{customLabel}</label>
+                </template>
+                <lightning-output-field field-name={fieldName} variant={fieldLabelVariant}
+                    field-class={fieldClass}>
+                </lightning-output-field>
+            </lightning-record-view-form>
+        </template>
+        <template if:false={fieldName}>
+            {messageIfFieldNameMissing}
+        </template>
+    </template>
+    <template if:false={recordId}>
+        {messageIfRecordIdMissing}
+    </template>
+</template>

@@ -1,3 +1,7 @@
+* {
+    transition: transform 3s;
+}
+
 :host {
     --element-hover: #1b96ff;
     --element-selected: #0176d3;
@@ -141,10 +145,59 @@
 
 .previewContainer {
     position: relative;
+    z-index: 1;
+    background-color: white;
 }
 
 .previewBuilderToggle {
     position: absolute;
     top: 0;
     right: 0;
+}
+
+.configContainer {
+    position: relative;
+    overflow-y: auto;
+    /* z-index: 0; */
+}
+
+.headerConfig {
+    z-index: 10;
+}
+
+.actionMenuConfig {
+    z-index: 20;
+    background-color: white;
+}
+
+.headerActionMenu {
+    position: absolute;
+    top: 0;
+    right: 0;    
+}
+
+/* .configContainer > * { */
+.configSubpanel {
+    position: absolute;
+    transition: transform 1s;
+}
+
+.offLeft {     
+    transform: translateX(-100%);
+}
+
+.offRight {
+    transform: translateX(50%);
+}
+
+.originalPosition {
+    transform: translateX(0);
+}
+
+.transitionTransform {
+    transition: transform 0.5s;
+}
+
+.actionsConfigContainer {
+    position: relative;
 }

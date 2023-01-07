@@ -45,7 +45,7 @@
         <div class="slds-form-element">
             <label class="slds-form-element__label">Alignment</label>
             <div class="slds-form-element__control">
-                <lightning-button-group>
+                <lightning-button-group name="horizontalAlign">
                     <template for:each={horizontalAlignOptions} for:item="alignment">
                         <lightning-button-icon key={alignment.value} icon-name={alignment.icon} value={alignment.value}
                             title={alignment.label} variant={alignment.variant} onclick={handleAlignmentClick}></lightning-button-icon>
@@ -55,8 +55,12 @@
         </div>
     </template>
     <template if:true={showColorPicker}>
-        <lightning-input label={colorPickerLabel} type="color" value={properties.color} name="color"
+        <lightning-input label={colorPickerLabel} type="color" value={colorValue} name={colorPropertyName}
             oncommit={handleValueChange}></lightning-input>
+    </template>
+    <template if:true={showSizePicker}>
+        <lightning-combobox name={sizePropertyName} options={sizes.options} label={sizePickerLabel} value={selectedSize} onchange={handleValueChange}></lightning-combobox>
+        <!-- <lightning-input name={sizePropertyName} label={sizePickerLabel} value={selectedSize} oncommit={handleValueChange}></lightning-input> -->
     </template>
 
 </template>

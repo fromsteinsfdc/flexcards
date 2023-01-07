@@ -6,6 +6,8 @@
     --dropzone-border: #55bb81;
     --dropzone-border-size: 1px;
     --element-border-size: 2px;
+    /* --lwc-inputStaticColor: red; */
+    /* See this list for other LWC styling hooks: https://gist.github.com/nolanlawson/bffdae25de0931a26f1bfd7f268c8388 */
 }
 
 /* ELEMENT CONTAINER */
@@ -53,9 +55,12 @@
 }
 
 .sectionColumn {
+    position: relative;
+}
+
+[data-is-edit-mode=true] .sectionColumn {
     border: 1px lightgray dashed;
     min-height: 50px;
-    position: relative;
 }
 
 /* DROPZONE */

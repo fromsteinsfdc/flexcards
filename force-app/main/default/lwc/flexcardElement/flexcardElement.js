@@ -1,4 +1,5 @@
 import { LightningElement, api } from 'lwc';
+import { MENU_DISPLAY_TYPES, SIZES } from 'c/flexcardUtils';
 
 const EVENTS = {
     HOVER: 'hoverchange',
@@ -13,6 +14,7 @@ export default class FlexcardElement extends LightningElement {
         return this._element;
     }
     set element(value) {
+        // console.log(`in flexcardElement: setting element value to ${JSON.stringify(value)}`);
         this._element = JSON.parse(JSON.stringify(value));  // Clone the value so it's mutable
     }
     _element;
@@ -23,25 +25,16 @@ export default class FlexcardElement extends LightningElement {
     /* GENERAL ELEMENT PROPERTIES */
     @api objectApiName;
     @api recordId;
-    @api elementType;
-    @api elementId;
     @api isEditMode = false;
-    @api isSelected;
-    @api isHovered;
 
     /* FIELD PROPERTIES */
-    @api fieldName;
-    @api showCustomLabel;
-    @api customLabel;
-    @api fieldLabelVariant;
-
-    @api variant;
-    @api label;
+    fieldLoaded;
+    actionIsFromColumnElement = false;
 
     /* SECTION PROPERTIES */
-    @api sectionColumns;
-    columnElementIsHovered;
-    columnElementIsDragged;
+    // @api sectionColumns;
+    // columnElementIsHovered;
+    // columnElementIsDragged;
     get columnElementIsSelected() {
         if (!this.element.issection) {
             return false;
@@ -51,18 +44,29 @@ export default class FlexcardElement extends LightningElement {
         });
     }
 
-    // @api content;
-    // @api numElementsInRow;
-    // @api width = WIDTHS.FULL;
-
     get computedElementClass() {
-        let classString = 'elementContainer slds-p-around_xx-small';
-        if (this.isSelected) {
-            classString += ' selected';
-        } else if (this.isHovered) {
-            classString += ' hovered';
+        let classList = ['elementContainer'];
+        // Add default horizontal spacing, if not otherwise specified
+        if (!this.element.formatterClassString?.includes('slds-p-horizontal')) {
+            classList.push('slds-p-horizontal_xx-small');
         }
-        return classString;
+        // Add default vertical spacing, if not otherwise specified
+        if (!this.element.formatterClassString?.includes('slds-p-vertical')) {
+            classList.push('slds-p-vertical_xx-small')
+        }
+        // Add class for selected or hovered, respectively
+        if (this.isSelected) {
+            classList.push('selected');
+        } else if (this.isHovered) {
+            classList.push('hovered');
+        }
+
+        if (this.element.formatterClassString) {
+            classList.push(this.element.formatterClassString);
+        }
+
+        // Join selected classes into a string, separated by spaces
+        return classList.join(' ');
     }
 
     get isHovered() {
@@ -85,6 +89,26 @@ export default class FlexcardElement extends LightningElement {
         return {
             [this.elementType]: true
         }
+    }
+
+    get richTextDisplayValue() {
+        return this.element.value || '[Display Text]';
+    }
+
+    get menuTypeIs() {
+        // let classes = this.computedElementClass.split(' ');
+        // const padHoriz = 'slds-p-horizontal_';
+        // let padHorClass = classes.find(c => c.startsWith(padHoriz));
+        // let paddingValue = padHorClass ? padHorClass.replace(padHoriz, '') : '';
+        // if (this.element.menuDisplayType == MENU_DISPLAY_TYPES.BUTTON_GROUP.value && paddingValue != SIZES.NONE.value ) {
+        //     return {
+        //         [MENU_DISPLAY_TYPES.VERTICAL_BUTTONS.value]: true
+        //     }
+        // } else {
+            return {
+                [this.element.menuDisplayType]: true
+            };
+        // }
     }
 
     get elementString() {
@@ -120,9 +144,9 @@ export default class FlexcardElement extends LightningElement {
     }
 
     handleElementMouseEnter() {
-        if (!this.columnElementIsHovered) {
+        // if (!this.columnElementIsHovered) {
             this.dispatchBasicEvent(EVENTS.HOVER, this.element.id);
-        }
+        // }
     }
 
     handleElementMouseLeave() {
@@ -131,18 +155,14 @@ export default class FlexcardElement extends LightningElement {
 
 
     handleElementClick(event) {
-        console.log('in element handleElementClick');
-        // console.log(JSON.stringify(event.composedPath()));
-        if (!this.columnElementIsSelected) {
-            this.dispatchBasicEvent(EVENTS.SELECT, this.element.id);
-        }
+        this.dispatchBasicEvent(EVENTS.SELECT, this.element.id);
     }
 
     handleElementDragStart() {
-        if (!this.columnElementIsDragged) {
+        // if (!this.columnElementIsDragged) {
             console.log(`in handleElementDragStart for element ${this.element.id}`);
             this.dispatchBasicEvent(EVENTS.DRAG, this.element.id);
-        }
+        // }
     }
 
     handleElementDragEnd() {
@@ -151,37 +171,43 @@ export default class FlexcardElement extends LightningElement {
 
     handleColumnElementHoverChange(event) {
         // console.log('in handleColumnElementHoverChange, ' + event.detail.value);
-        this.columnElementIsHovered = Boolean(event.detail.value);
+        // this.columnElementIsHovered = Boolean(event.detail.value);
         this.dispatchBasicEvent(EVENTS.HOVER, event.detail.value || this.element.id);
     }
 
     handleColumnElementSelect(event) {
         this.dispatchBasicEvent(EVENTS.SELECT, event.detail.value);
+        this.actionIsFromColumnElement = true;
     }
 
     handleColumnElementDelete(event) {
         this.dispatchBasicEvent(EVENTS.DELETE, event.detail.value);
+        this.actionIsFromColumnElement = true;
     }
 
     handleColumnElementDrag(event) {
         const detail = { ...event.detail }
-        this.columnElementIsDragged = Boolean(event.detail.value);
+        // this.columnElementIsDragged = Boolean(event.detail.value);
         this.dispatchEvent(new CustomEvent(EVENTS.DRAG, { detail }));
+        this.actionIsFromColumnElement = true;
         // this.dispatchBasicEvent(EVENTS.DRAG, event.detail.value);
     }
 
     dispatchBasicEvent(eventName, value) {
-        if (!this.isEditMode) {
-            return;
+        if (this.isEditMode) {
+            if (this.actionIsFromColumnElement) {
+                this.actionIsFromColumnElement = false;
+            } else {
+                const detail = {
+                    value,
+                    sectionId: this.element.sectionId
+                }
+                this.dispatchEvent(new CustomEvent(eventName, { detail }));
+            }
         }
-        const detail = {
-            value,
-            sectionId: this.element.sectionId
-        }
-        this.dispatchEvent(new CustomEvent(eventName, { detail }));
     }
 
     handleRecordViewFormLoad(event) {
-
+        this.fieldLoaded = true;
     }
 }
